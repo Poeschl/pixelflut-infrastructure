@@ -31,5 +31,8 @@ and follow the instruction on the screen.
 | prometheus                               | 9090 |
 | prometheus node exporter                 | 9100 |
 
+## Grafana Pixelflut Dashboard
+![Grafana Pixelflut Dashboard](docs/images/dashboard.png?raw=true "Grafana Pixelflut Dashboard")
+
 ## Thanks
 Powered by https://github.com/TobleMiner/shoreline and https://github.com/TobleMiner/vncmux.
