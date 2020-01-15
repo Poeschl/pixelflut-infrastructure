@@ -27,7 +27,7 @@ and follow the instruction on the screen.
 | Pixelflut server VNC (dont use directly) | 5901 |
 | Pixelflut server statistics              | 1235 |
 | VNC Relay                                | 5900 |
-| Grafana montitoring webinterface         | 5900 |
+| Grafana montitoring webinterface         | 80   |
 | prometheus                               | 9090 |
 | prometheus node exporter                 | 9100 |
 
