@@ -20,6 +20,9 @@ After that run
 ```
 and follow the instruction on the screen.
 
+## Overview of services
+![Overview of services](docs/images/services.png?raw=true "Overview of services")
+
 ## Ports
 | Service                                  | Port |
 | ---------------------------------------- | ---- |

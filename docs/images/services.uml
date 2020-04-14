@@ -1,0 +1,23 @@
+@startuml
+[shoreline]
+
+package "pixelflut-infrastructure" {
+  [vnc relay]
+  [prometheus]
+  [prometheus node exporter]
+  [statistics crawler]
+  [grafana]
+}
+
+[client]
+
+[vnc relay]                ->  [shoreline]                : 5900
+[grafana]                  ->  [prometheus]               : 9090
+[prometheus]               ->  [prometheus node exporter] : 9100
+[prometheus node exporter] ->  [statistics crawler]       : Textfile
+[statistics crawler]       --> [shoreline]                : 1235
+
+[shoreline]                <-  [client]                   : playing (1234)
+[vnc relay]                <-  [client]                   : watching (5900)
+[grafana]                  <-  [client]                   : statistics (80)
+@enduml
