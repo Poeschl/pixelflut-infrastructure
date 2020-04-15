@@ -1,7 +1,9 @@
 @startuml
-[shoreline]
+package "Server 1 (pixelflut server)" {
+  [shoreline]
+}
 
-package "pixelflut-infrastructure" {
+package "Server 2 (relay and monitoring)" {
   [vnc relay]
   [prometheus]
   [prometheus node exporter]
@@ -9,7 +11,9 @@ package "pixelflut-infrastructure" {
   [grafana]
 }
 
-[client]
+package "Clients" {
+  [client]
+}
 
 [vnc relay]                ->  [shoreline]                : 5900
 [grafana]                  ->  [prometheus]               : 9090
