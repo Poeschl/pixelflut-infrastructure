@@ -23,17 +23,6 @@ and follow the instruction on the screen.
 ## Overview of services
 ![Overview of services](docs/images/services.png?raw=true "Overview of services")
 
-## Ports
-| Service                                  | Port |
-| ---------------------------------------- | ---- |
-| Pixelflut server                         | 1234 |
-| Pixelflut server VNC (dont use directly) | 5901 |
-| Pixelflut server statistics              | 1235 |
-| VNC Relay                                | 5900 |
-| Grafana montitoring webinterface         | 80   |
-| prometheus                               | 9090 |
-| prometheus node exporter                 | 9100 |
-
 ## Grafana Pixelflut Dashboard
 ![Grafana Pixelflut Dashboard](docs/images/dashboard.png?raw=true "Grafana Pixelflut Dashboard")
 
