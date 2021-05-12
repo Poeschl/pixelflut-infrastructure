@@ -1,4 +1,4 @@
-FROM alpine:3.11.2 AS build
+FROM alpine:3.13.5 AS build
 
 # Seperate layer with same packets as in final image to speed up build process
 RUN apk add --no-cache numactl-dev sdl2-dev freetype-dev libvncserver-dev libc-dev
@@ -8,7 +8,7 @@ cd shoreline && \
 make
 
 
-FROM alpine:3.11.2
+FROM alpine:3.13.5
 
 RUN apk add --no-cache numactl-dev sdl2-dev freetype-dev libvncserver-dev libc-dev
 COPY --from=build /shoreline/shoreline /shoreline
