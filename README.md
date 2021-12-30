@@ -58,7 +58,7 @@ Docker Desktop does not support this network mode. On linux it does increase the
 
 For a secure TLS connection Traefik is used for the monitoring server and provides a encrypted connection to Grafana.
 The certificate for the connection is recieved from Let's encrypt and is stored in a internal volume, so it stays persistant between restarts.
-The traefik Dashboard is available under https://<hostname>/traefik/dashboard, in case the domain correctly entered in the `.env` file.
+The traefik Dashboard is available under https://\<hostname\>/traefik/dashboard, in case the domain correctly entered in the `.env` file.
 
 If an https connection is not what you want or you don't trust Let's Encrypt, follow the commented instructions on the grafana service in `docker-compose.monitoring-host.yaml`.
 
