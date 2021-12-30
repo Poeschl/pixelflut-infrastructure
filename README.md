@@ -64,7 +64,7 @@ If an https connection is not what you want or you don't trust Let's Encrypt, fo
 
 ## Grafana Pixelflut Dashboard
 
-The grafana dashboard is available und https://<hostname>/grafana.
+The grafana dashboard is available und https://\<hostname\>/grafana.
 
 The data in Grafana will be persisted between restarts and retains for 14 days.
 
