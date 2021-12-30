@@ -23,6 +23,11 @@ Make sure that the `.env` file is identical on both machines.
 If only one host is used start both docker-compose files on this machine.
 Please check if the `pixelflut_host` is then set to `localhost`.
 
+### Running on Non-Linux
+
+If you intend to use this infrastructure on a non-linux system, make sure to comment out `network_mode: "host"` in the `docker-compose.*.yml` files.
+Docker Desktop does not support this network mode. On linux it does increase the performance, so its enabled on default.
+
 ## Overview of services
 ![Overview of services](docs/images/services.png?raw=true "Overview of services")
 
