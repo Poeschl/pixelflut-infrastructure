@@ -23,6 +23,29 @@ Make sure that the `.env` file is identical on both machines.
 If only one host is used start both docker-compose files on this machine.
 Please check if the `pixelflut_host` is then set to `localhost`.
 
+### Pixelflut host
+
+Don't forget to limit the connections per IP on the Pixelflut host, to make it a little challenging for all players.
+As iptables is available everywhere use those two commands to limit to 10 (or what you like) connections for each IPv4 and IPv6.
+
+```shell
+iptables -A INPUT -p tcp -m tcp --dport 1234 --tcp-flags FIN,SYN,RST,ACK SYN -m connlimit --connlimit-above 10 --connlimit-mask 32 --connlimit-saddr -j REJECT --reject-with icmp-port-unreachable
+ip6tables -A INPUT -p tcp -m tcp --dport 1234 --tcp-flags FIN,SYN,RST,ACK SYN -m connlimit --connlimit-above 10 --connlimit-mask 128 --connlimit-saddr -j REJECT --reject-with icmp6-port-unreachable
+```
+
+Also block the direct VNC port on the Pixelflut host, since all clients should use the VNCmux connection.
+
+```shell
+iptables -I INPUT --proto tcp --dport 5901 -j REJECT
+# Allow your monitoring server the connection
+iptables -I INPUT --source <ip of monitoring server> --proto tcp --dport 5901 -j ACCEPT
+
+ip6tables -I INPUT --proto tcp --dport 5901 -j REJECT
+# Allow your monitoring server the connection
+ip6tables -I INPUT --source <ip of monitoring server> --proto tcp --dport 5901 -j ACCEPT
+
+```
+
 ### Running on Non-Linux
 
 If you intend to use this infrastructure on a non-linux system, make sure to comment out `network_mode: "host"` in the `docker-compose.*.yml` files.
