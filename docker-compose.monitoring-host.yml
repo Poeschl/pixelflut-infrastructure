@@ -11,9 +11,10 @@ services:
 
   statistics_crawler:
     restart: unless-stopped
-    build: ./statistics_crawler
-    command: "python3 crawl.py ${pixelflut_host} ${pixelflut_port_statistics} /tmp/pixelflut_statistics.txt"
+    image: python:3.10-alpine
+    command: "python /crawl.py ${pixelflut_host} ${pixelflut_port_statistics} /tmp/pixelflut_statistics.txt"
     volumes:
+      - "./statistics_crawler/crawl.py:/crawl.py"
       - "./pixelflut_statistics.txt:/tmp/pixelflut_statistics.txt"
 
   node_exporter:
