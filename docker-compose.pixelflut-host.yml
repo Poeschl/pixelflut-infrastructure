@@ -1,7 +1,8 @@
 version: '3'
 services:
-  
+
   shoreline:
+    restart: unless-stopped
     build: ./shoreline
     command: "/shoreline -b 0.0.0.0 -f vnc,port=5901 -t arial.ttf -f statistics,listen=0.0.0.0 -w ${pixelflut_canvas_width} -h ${pixelflut_canvas_height} -d '${pixelflut_description}'"
     network_mode: "host"

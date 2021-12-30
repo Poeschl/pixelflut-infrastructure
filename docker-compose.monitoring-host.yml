@@ -2,17 +2,20 @@ version: '3'
 services:
 
   vncmux:
+    restart: unless-stopped
     build: ./vncmux
     command: "sh -c 'sleep 2 && /vncmux -l 5900 -w ${pixelflut_canvas_width} -h ${pixelflut_canvas_height} ${pixelflut_host} ${pixelflut_port_vnc}'"
     network_mode: "host"
 
   statistics_crawler:
+    restart: unless-stopped
     build: ./statistics_crawler
     command: "python3 crawl.py ${pixelflut_host} ${pixelflut_port_statistics} /tmp/pixelflut_statistics.txt"
     volumes:
       - "./pixelflut_statistics.txt:/tmp/pixelflut_statistics.txt"
 
   node_exporter:
+    restart: unless-stopped
     image: "prom/node-exporter"
     command: "--collector.textfile.directory /var/lib/node_exporter/textfile_collector"
     ports:
@@ -21,6 +24,7 @@ services:
       - "./pixelflut_statistics.txt:/var/lib/node_exporter/textfile_collector/pixelflut_statistics.prom"
 
   prometheus:
+    restart: unless-stopped
     image: "prom/prometheus"
     ports:
       - 9090:9090
@@ -30,6 +34,7 @@ services:
       - node_exporter
 
   grafana:
+    restart: unless-stopped
     build: ./grafana
     ports:
       - 80:3000
