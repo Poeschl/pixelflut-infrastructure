@@ -10,15 +10,18 @@ Server 1 to run only the pixelflut server.
 Server 2 to run the VNC-Relay and Montitoring-Setup (this tool).
 People watching connect with their VNC-Viewer to the second server.
 When starting this tool you can choose to start your own pixelflut server, or monitor an other server.
-Important: This tool is made for the pixelflut server https://github.com/TobleMiner/shoreline, other servers likely wont work (dont have VNC and expose statistics).
+Important: This tool is made for the [shoreline pixelflut server](https://github.com/TobleMiner/shoreline), other servers likely wont work (dont have VNC and expose statistics).
 
 ## Preperation
 You must have docker and docker-compose installed. See https://docs.docker.com/get-docker/ and https://docs.docker.com/compose/install/.
-After that run
-```
-./run.sh
-```
-and follow the instruction on the screen.
+
+After that adjust the `.env` file to your requirements, the variables will be used by the starting docker containers.
+When everything is set, execute `docker-compose -f docker-compose.pixelflut-host.yml up` on your host for the Pixelflut server.
+Afterwards execute `docker-compose -f docker-compose.monitoring-host.yml up` on the host intended for monitoring and forwarding.
+Make sure that the `.env` file is identical on both machines.
+
+If only one host is used start both docker-compose files on this machine.
+Please check if the `pixelflut_host` is then set to `localhost`.
 
 ## Overview of services
 ![Overview of services](docs/images/services.png?raw=true "Overview of services")
