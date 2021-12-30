@@ -4,7 +4,7 @@ services:
   vncmux:
     restart: unless-stopped
     build: ./vncmux
-    command: "sh -c 'sleep 2 && /vncmux -l 5900 -w ${pixelflut_canvas_width} -h ${pixelflut_canvas_height} ${pixelflut_host} ${pixelflut_port_vnc}'"
+    command: -l 5900 -w ${pixelflut_canvas_width} -h ${pixelflut_canvas_height} ${pixelflut_host} ${pixelflut_port_vnc}
     network_mode: "host"
     ports:
       - 5900:5900
