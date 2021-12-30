@@ -27,6 +27,9 @@ Please check if the `pixelflut_host` is then set to `localhost`.
 ![Overview of services](docs/images/services.png?raw=true "Overview of services")
 
 ## Grafana Pixelflut Dashboard
+
+The data in Grafana will be persisted between restarts and retains for 14 days.
+
 ![Grafana Pixelflut Dashboard](docs/images/dashboard.png?raw=true "Grafana Pixelflut Dashboard")
 
 ## Thanks

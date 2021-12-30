@@ -16,27 +16,36 @@ services:
 
   node_exporter:
     restart: unless-stopped
-    image: "prom/node-exporter"
+    image: "prom/node-exporter:v1.3.1"
     command: "--collector.textfile.directory /var/lib/node_exporter/textfile_collector"
-    ports:
-      - 9100
     volumes:
       - "./pixelflut_statistics.txt:/var/lib/node_exporter/textfile_collector/pixelflut_statistics.prom"
 
   prometheus:
     restart: unless-stopped
-    image: "prom/prometheus"
-    ports:
-      - 9090:9090
+    image: "prom/prometheus:v2.32.1"
     volumes:
       - "./prometheus/pixelflut.yml:/etc/prometheus/prometheus.yml"
+      - 'prometheus-data:/prometheus'
     links:
       - node_exporter
 
   grafana:
     restart: unless-stopped
-    build: ./grafana
+    image: grafana/grafana:8.3.3
     ports:
       - 80:3000
     links:
       - prometheus
+    volumes:
+      - './grafana/provisioning:/etc/grafana/provisioning/'
+      - 'grafana-data:/var/lib/grafana'
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: "${grafana_admin_password}"
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+      GF_USERS_AUTO_ASSIGN_ORG: 'true'
+      GF_USERS_AUTO_ASSIGN_ORG_ROLE: 'Admin'
+
+volumes:
+  grafana-data:
+  prometheus-data:
