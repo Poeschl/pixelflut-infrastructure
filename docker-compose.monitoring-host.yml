@@ -12,6 +12,8 @@ services:
   statistics_crawler:
     restart: unless-stopped
     image: python:3.10-alpine
+    networks:
+      - monitoring_internal
     command: "python /crawl.py ${pixelflut_host} ${pixelflut_port_statistics} /tmp/pixelflut_statistics.txt"
     volumes:
       - "./statistics_crawler/crawl.py:/crawl.py"
@@ -20,6 +22,8 @@ services:
   node_exporter:
     restart: unless-stopped
     image: "prom/node-exporter:v1.3.1"
+    networks:
+      - monitoring_internal
     command: "--collector.textfile.directory /var/lib/node_exporter/textfile_collector"
     volumes:
       - "./pixelflut_statistics.txt:/var/lib/node_exporter/textfile_collector/pixelflut_statistics.prom"
@@ -32,14 +36,20 @@ services:
       - 'prometheus-data:/prometheus'
     links:
       - node_exporter
+    networks:
+      - monitoring_internal
 
   grafana:
     restart: unless-stopped
     image: grafana/grafana:8.3.3
-    ports:
-      - 80:3000
+    # If traefik is not used, uncomment this and comment the traefik service.
+    # ports:
+    #   - 80:3000
     links:
       - prometheus
+    networks:
+      - proxy
+      - monitoring_internal
     volumes:
       - './grafana/provisioning:/etc/grafana/provisioning/'
       - 'grafana-data:/var/lib/grafana'
@@ -48,7 +58,67 @@ services:
       GF_USERS_ALLOW_SIGN_UP: 'false'
       GF_USERS_AUTO_ASSIGN_ORG: 'true'
       GF_USERS_AUTO_ASSIGN_ORG_ROLE: 'Admin'
+      GF_SERVER_ROOT_URL: '%(protocol)s://%(domain)s:%(http_port)s/grafana/'
+      GF_SERVER_SERVE_FROM_SUB_PATH: 'true'
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.grafana.rule=PathPrefix(`/grafana`)'
+      - 'traefik.http.routers.grafana.entrypoints=websecure'
+
+  traefik:
+    image: "traefik:v2.5.6"
+    restart: unless-stopped
+    command:
+      - '--api'
+      - '--api.dashboard=true'
+      - '--ping=true'
+      - '--ping.entrypoint=websecure'
+      - '--providers.docker=true'
+      - '--providers.docker.exposedbydefault=false'
+      - '--providers.docker.network=proxy'
+
+      - '--entrypoints.web.address=:80'
+      - '--entrypoints.web.http.redirections.entrypoint.to=websecure'
+      - '--entrypoints.websecure.address=:443'
+      - '--entrypoints.websecure.http.tls=true'
+      - '--entrypoints.websecure.http.tls.certResolver=letsencrypt'
+
+      - '--certificatesresolvers.letsencrypt.acme.email=${letsencrypt_email}'
+      - '--certificatesresolvers.letsencrypt.acme.storage=/acme/acme.json'
+      - '--certificatesresolvers.letsencrypt.acme.tlschallenge=true'
+
+      #- '--log.level=DEBUG'
+    networks:
+      - proxy
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock:ro'
+      - 'acme-store:/acme'
+    labels:
+      - 'traefik.enable=true'
+      # since Traefik don't allow to change the api path the referer is used as rule (https://github.com/traefik/traefik/issues/5853)
+      - 'traefik.http.routers.dashboard.rule=Host(`${monitoring_domain}`) && (PathPrefix(`/traefik/dashboard`) || HeadersRegexp(`Referer`, `.*\/traefik\/dashboard\/.*`))'
+      - 'traefik.http.routers.dashboard.priority=20'
+      - 'traefik.http.routers.dashboard.service=api@internal'
+      - 'traefik.http.routers.dashboard.entrypoints=websecure'
+      - 'traefik.http.routers.dashboard.middlewares=strip-prefix-traefik'
+      - 'traefik.http.middlewares.strip-prefix-traefik.stripprefix.prefixes=/traefik'
+
+      - 'traefik.http.routers.dashboard-redirect.rule=PathPrefix(`/traefik`)'
+      - 'traefik.http.routers.dashboard-redirect.priority=10'
+      - 'traefik.http.routers.dashboard-redirect.service=noop@internal'
+      - 'traefik.http.routers.dashboard-redirect.entrypoints=websecure'
+      - 'traefik.http.routers.dashboard-redirect.middlewares=dashboard-redirect'
+      - 'traefik.http.middlewares.dashboard-redirect.redirectregex.regex=^(https://.*)/traefik.*'
+      - 'traefik.http.middlewares.dashboard-redirect.redirectregex.replacement=$${1}/traefik/dashboard/'
+
+networks:
+  proxy:
+  monitoring_internal:
 
 volumes:
   grafana-data:
   prometheus-data:
+  acme-store:
