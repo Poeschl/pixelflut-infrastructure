@@ -27,4 +27,5 @@ and follow the instruction on the screen.
 ![Grafana Pixelflut Dashboard](docs/images/dashboard.png?raw=true "Grafana Pixelflut Dashboard")
 
 ## Thanks
+To https://github.com/sbernauer/pixelflut-infrastructure for the initial infrastructure.
 Powered by https://github.com/TobleMiner/shoreline and https://github.com/TobleMiner/vncmux.
