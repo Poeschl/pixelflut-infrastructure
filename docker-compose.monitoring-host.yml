@@ -1,34 +1,22 @@
 version: '3'
 services:
-#COMMENT#  shoreline:
-#COMMENT#    build: ./shoreline
-#COMMENT#    command: "/shoreline -b 0.0.0.0 -f vnc,port=5901 -t arial.ttf -f statistics,listen=0.0.0.0 -w ###WIDTH### -h ###HEIGHT### -d '###DESCRIPTION###'"
-#COMMENT#    ports:
-#COMMENT#      - 1234:1234 # pixelflut
-#COMMENT#      - 1235:1235 # statistics
-#COMMENT#      - 5901:5901 # vnc
 
   vncmux:
     build: ./vncmux
-    command: "sh -c 'sleep 2 && /vncmux -l 5900 -w ###WIDTH### -h ###HEIGHT### ###HOST### ###PORT_VNC###'"
-    ports:
-      - 5900:5900
-#COMMENT#    links:
-#COMMENT#      - shoreline
+    command: "sh -c 'sleep 2 && /vncmux -l 5900 -w ${pixelflut_canvas_width} -h ${pixelflut_canvas_height} ${pixelflut_host} ${pixelflut_port_vnc}'"
+    network_mode: "host"
 
   statistics_crawler:
     build: ./statistics_crawler
-    command: "python3 crawl.py ###HOST### ###PORT_STATISTICS### /tmp/pixelflut_statistics.txt"
+    command: "python3 crawl.py ${pixelflut_host} ${pixelflut_port_statistics} /tmp/pixelflut_statistics.txt"
     volumes:
       - "./pixelflut_statistics.txt:/tmp/pixelflut_statistics.txt"
-#COMMENT#    links:
-#COMMENT#      - shoreline
 
   node_exporter:
     image: "prom/node-exporter"
     command: "--collector.textfile.directory /var/lib/node_exporter/textfile_collector"
     ports:
-      - 9100:9100
+      - 9100
     volumes:
       - "./pixelflut_statistics.txt:/var/lib/node_exporter/textfile_collector/pixelflut_statistics.prom"
 
