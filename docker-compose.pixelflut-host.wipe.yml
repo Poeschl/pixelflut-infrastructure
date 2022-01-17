@@ -1,0 +1,35 @@
+version: '3'
+services:
+
+  shoreline:
+    restart: unless-stopped
+    image: ghcr.io/poeschl/shoreline
+    entrypoint: ["shoreline", "-b", "0.0.0.0", "-p", "1234", "-f", "vnc,port=5901", "-f", "statistics,port=1235", "-t", "arial.ttf"]
+    command: -w ${pixelflut_canvas_width} -h ${pixelflut_canvas_height} -d "${pixelflut_description}"
+    network_mode: "host"
+    ports:
+      - 1234:1234
+      - 1235:1235
+      - 5901:5901
+
+  wiper:
+    image: ghcr.io/poeschl/pixelpwnr
+    container_name: canvas_wiper
+    volumes:
+      - ./wiper:/wiper
+    depends_on:
+      - shoreline
+    entrypoint: ["sh", "-c", 
+      "pixelpwnr localhost:1234 -i /wiper/background.png -c 1 -w ${pixelflut_canvas_width} -h ${pixelflut_canvas_height} 
+      & pid=$$! && sleep 30 && kill -9 $$pid"]
+    network_mode: "host"
+
+  scheduler:
+    restart: unless-stopped
+    image: mcuadros/ofelia
+    command: daemon --docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      ofelia.job-run.wiper.schedule: "@every 1h"
+      ofelia.job-run.wiper.container: "canvas_wiper"

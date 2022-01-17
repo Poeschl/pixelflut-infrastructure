@@ -23,6 +23,16 @@ Make sure that the `.env` file is identical on both machines.
 If only one host is used start both docker-compose files on this machine.
 Please check if the `pixelflut_host` is then set to `localhost`.
 
+### Variants to run
+
+The `docker-compose.pixelflut-host.yml` file has multiple variants, which have different additional features.
+
+#### Automatic Canvas Wipe
+
+When starting `docker-compose.pixelflut-host.wipe.yml` an soft, automatic canvas wipe will be executed every hour and at the start.
+This might be handy to clear leftovers.
+It is done by flooding the background image from the `wiper` directory with 1 connection to the canvas.
+
 ### Pixelflut host
 
 Don't forget to limit the connections per IP on the Pixelflut host, to make it a little challenging for all players.
