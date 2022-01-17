@@ -1,7 +1,8 @@
 # pixelflut-infrastructure
+
 A docker-setup with pixelflut server (shoreline), VNC-relay and monitoring of the game.
 
-With this tool you can start an pixelflut server, acting as VCN-Server.
+With this tool you can start an pixelflut server, acting as VNC-Server.
 The game and server are monitored with prometheus and grafana.
 A VNC-Relay/Multiplexer is provided to take the load of all the people watching the game from the pixelflut server.
 
@@ -12,7 +13,12 @@ People watching connect with their VNC-Viewer to the second server.
 When starting this tool you can choose to start your own pixelflut server, or monitor an other server.
 Important: This tool is made for the [shoreline pixelflut server](https://github.com/TobleMiner/shoreline), other servers likely wont work (dont have VNC and expose statistics).
 
+The Pixelflut infrastructure also contains an hourly wipe of the canvas.
+This might be handy to clear leftovers.
+It is done by flooding the background image from the `wiper` directory with 1 connection to the canvas.
+
 ## Preperation
+
 You must have docker and docker-compose installed. See https://docs.docker.com/get-docker/ and https://docs.docker.com/compose/install/.
 
 After that adjust the `.env` file to your requirements, the variables will be used by the starting docker containers.
@@ -22,16 +28,6 @@ Make sure that the `.env` file is identical on both machines.
 
 If only one host is used start both docker-compose files on this machine.
 Please check if the `pixelflut_host` is then set to `localhost`.
-
-### Variants to run
-
-The `docker-compose.pixelflut-host.yml` file has multiple variants, which have different additional features.
-
-#### Automatic Canvas Wipe
-
-When starting `docker-compose.pixelflut-host.wipe.yml` an soft, automatic canvas wipe will be executed every hour and at the start.
-This might be handy to clear leftovers.
-It is done by flooding the background image from the `wiper` directory with 1 connection to the canvas.
 
 ### Pixelflut host
 
@@ -62,6 +58,7 @@ If you intend to use this infrastructure on a non-linux system, make sure to com
 Docker Desktop does not support this network mode. On linux it does increase the performance, so its enabled on default.
 
 ## Overview of services
+
 ![Overview of services](docs/images/services.png?raw=true "Overview of services")
 
 ## HTTPS via Traefik
@@ -81,5 +78,7 @@ The data in Grafana will be persisted between restarts and retains for 14 days.
 ![Grafana Pixelflut Dashboard](docs/images/dashboard.png?raw=true "Grafana Pixelflut Dashboard")
 
 ## Thanks
+
 To https://github.com/sbernauer/pixelflut-infrastructure for the initial infrastructure.
+
 Powered by https://github.com/TobleMiner/shoreline and https://github.com/TobleMiner/vncmux.
