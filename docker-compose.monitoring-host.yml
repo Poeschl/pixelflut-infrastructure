@@ -6,8 +6,9 @@ services:
     build: ./vncmux
     command: -l 5900 -w ${pixelflut_canvas_width} -h ${pixelflut_canvas_height} ${pixelflut_host} ${pixelflut_port_vnc}
     network_mode: "host"
-    ports:
-      - 5900:5900
+# For Windows enable the ports and comment out the network_mode
+#    ports:
+#      - 5900:5900
 
   statistics_crawler:
     restart: unless-stopped
