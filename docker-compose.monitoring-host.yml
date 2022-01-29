@@ -13,8 +13,7 @@ services:
   statistics_crawler:
     restart: unless-stopped
     image: python:3.10-alpine
-    networks:
-      - monitoring_internal
+    network_mode: "host"
     command: "python /crawl.py ${pixelflut_host} ${pixelflut_port_statistics} /tmp/pixelflut_statistics.txt"
     volumes:
       - "./statistics_crawler/crawl.py:/crawl.py"
