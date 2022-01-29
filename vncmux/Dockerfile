@@ -7,7 +7,7 @@ RUN apk add --no-cache \
 RUN apk add --no-cache \
     build-base=0.5-r2 \
     git=2.34.1-r0 \
-    ca-certificates=20191127-r7 \
+    ca-certificates=20211220-r0 \
     && \
     git clone https://github.com/tobleminer/vncmux && \
     cd vncmux && \
