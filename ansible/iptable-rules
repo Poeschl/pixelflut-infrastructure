@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+
+iptables -A INPUT -p tcp -m tcp --dport 1234 --tcp-flags FIN,SYN,RST,ACK SYN -m connlimit --connlimit-above 10 --connlimit-mask 32 --connlimit-saddr -j REJECT --reject-with icmp-port-unreachable
+iptables -I INPUT --proto tcp --dport 5901 -j REJECT
+iptables -I INPUT --source {{ monitoring_ip }} --proto tcp --dport 5901 -j ACCEPT
+
+ip6tables -A INPUT -p tcp -m tcp --dport 1234 --tcp-flags FIN,SYN,RST,ACK SYN -m connlimit --connlimit-above 10 --connlimit-mask 128 --connlimit-saddr -j REJECT --reject-with icmp6-port-unreachable
+ip6tables -I INPUT --proto tcp --dport 5901 -j REJECT
+
+{% if monitoring_ip6 is defined %}
+ip6tables -I INPUT --source {{ monitoring_ip6 }} --proto tcp --dport 5901 -j ACCEPT
+{% endif %}

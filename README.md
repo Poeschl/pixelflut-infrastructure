@@ -21,6 +21,8 @@ It is done by flooding the background image from the `wiper` directory with 1 co
 
 You must have docker and docker-compose installed. See https://docs.docker.com/get-docker/ and https://docs.docker.com/compose/install/.
 
+If you want to use Ansible to set everything up for you, the last preperation section is what you are looking for.
+
 After that adjust the `.env` file to your requirements, the variables will be used by the starting docker containers.
 When everything is set, execute `docker-compose -f docker-compose.pixelflut-host.yml up` on your host for the Pixelflut server.
 Afterwards execute `docker-compose -f docker-compose.monitoring-host.yml up` on the host intended for monitoring and forwarding.
@@ -56,6 +58,11 @@ ip6tables -I INPUT --source <ip of monitoring server> --proto tcp --dport 5901 -
 
 If you intend to use this infrastructure on a non-linux system, make sure to comment out `network_mode: "host"` in the `docker-compose.*.yml` files.
 Docker Desktop does not support this network mode. On linux it does increase the performance, so its enabled on default.
+
+### Ansible installer
+
+In the `ansible` folder are ansible playbooks ready to distribute this repository to two hosts and set them up and running.
+More on the [README](ansible/README.md) inside the folder.
 
 ## Overview of services
 

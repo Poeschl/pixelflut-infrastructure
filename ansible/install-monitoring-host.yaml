@@ -1,0 +1,32 @@
+---
+- name: Setup Monitoring host
+  hosts: all
+  vars:
+    apt_upgrade: true
+    install_docker: true
+    working_dir: ~/pixelflut-infrastructure
+
+  tasks:
+
+    - import_tasks: tasks/apt-upgrade.yaml
+    - import_tasks: tasks/install-docker.yaml
+    - import_tasks: tasks/workspace.yaml
+
+    - name: Copy assets
+      loop:
+        - grafana
+        - prometheus
+        - statistics_crawler
+        - pixelflut_statistics.txt
+        - vncmux
+        - .env
+        - docker-compose.monitoring-host.yml
+      copy:
+        src: "../{{ item }}"
+        dest: "{{ working_dir }}"
+
+    - name: Start Monitoring docker container
+      community.docker.docker_compose:
+        project_src: "{{ working_dir }}"
+        files:
+          - docker-compose.monitoring-host.yml
