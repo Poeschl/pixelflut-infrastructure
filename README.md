@@ -28,6 +28,8 @@ When everything is set, execute `docker-compose -f docker-compose.pixelflut-host
 Afterwards execute `docker-compose -f docker-compose.monitoring-host.yml up` on the host intended for monitoring and forwarding.
 Make sure that the `.env` file is identical on both machines.
 
+**When renaming the project folder, adjust the docker network name in the `docker-compose.monitoring-host` file on the traefik container.**
+
 If only one host is used start both docker-compose files on this machine.
 Please check if the `pixelflut_host` is then set to `localhost`.
 

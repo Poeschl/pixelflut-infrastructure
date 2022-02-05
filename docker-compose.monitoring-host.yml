@@ -75,7 +75,7 @@ services:
       - '--ping.entrypoint=websecure'
       - '--providers.docker=true'
       - '--providers.docker.exposedbydefault=false'
-      - '--providers.docker.network=proxy'
+      - '--providers.docker.network=pixelflut-infrastructure_proxy'
 
       - '--entrypoints.web.address=:80'
       - '--entrypoints.web.http.redirections.entrypoint.to=websecure'
