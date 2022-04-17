@@ -34,4 +34,16 @@ services:
     labels:
       ofelia.job-run.wiper.schedule: "@every 1h"
       ofelia.job-run.wiper.container: "canvas_wiper"
-      
+
+  vnc2rtmp:
+    image: restreamio/gstreamer:2022-04-11T16-15-11Z-prod-dbg
+    restart: unless-stopped
+    network_mode: "host"
+    entrypoint: >
+      gst-launch-1.0
+      rfbsrc host=localhost port=5901 shared=false view-only=true !
+      videoconvert ! x264enc speed-preset=veryfast tune=zerolatency !
+      flvmux name=mux metadatacreator=${pixelflut_description} encoder='Pixelflut VNC Bridge' ! queue !
+      rtmpsink location='rtmp://${monitoring_host}:1935/live/${streaming_key}'
+
+      audiotestsrc wave=silence ! avenc_aac ! mux.

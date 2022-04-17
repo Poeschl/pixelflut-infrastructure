@@ -60,6 +60,7 @@ services:
       GF_USERS_AUTO_ASSIGN_ORG_ROLE: 'Admin'
       GF_SERVER_ROOT_URL: '%(protocol)s://%(domain)s:%(http_port)s/grafana/'
       GF_SERVER_SERVE_FROM_SUB_PATH: 'true'
+      GF_SECURITY_ALLOW_EMBEDDING: 'true'
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.routers.grafana.rule=PathPrefix(`/grafana`)'
@@ -114,6 +115,22 @@ services:
       - 'traefik.http.middlewares.dashboard-redirect.redirectregex.regex=^(https://.*)/traefik.*'
       - 'traefik.http.middlewares.dashboard-redirect.redirectregex.replacement=$${1}/traefik/dashboard/'
 
+  owncast:
+    image: gabekangas/owncast:0.0.11
+    ports:
+      - "1935:1935" # open up internal rtmp port
+    volumes:
+      - "./owncast/logs:/app/data/logs"
+      - "./owncast/owncast.db:/app/data/owncast.db"
+      - "owncast-data:/app/data"
+    networks:
+      - proxy
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.owncast.rule=Host(`${viewer_domain}`)'
+      - 'traefik.http.routers.owncast.entrypoints=websecure'
+      - 'traefik.http.services.owncast.loadbalancer.server.port=8080'
+
 networks:
   proxy:
   monitoring_internal:
@@ -122,3 +139,4 @@ volumes:
   grafana-data:
   prometheus-data:
   acme-store:
+  owncast-data:

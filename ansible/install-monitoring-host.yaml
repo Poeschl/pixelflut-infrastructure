@@ -19,6 +19,7 @@
         - statistics_crawler
         - pixelflut_statistics.txt
         - vncmux
+        - owncast
         - .env
         - docker-compose.monitoring-host.yml
       copy:
