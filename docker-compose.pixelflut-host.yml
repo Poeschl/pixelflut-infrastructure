@@ -39,11 +39,18 @@ services:
     image: restreamio/gstreamer:2022-04-11T16-15-11Z-prod-dbg
     restart: unless-stopped
     network_mode: "host"
+    volumes:
+      - "./record:/record"
     entrypoint: >
+      /bin/sh -c '
       gst-launch-1.0
       rfbsrc host=localhost port=5901 shared=false view-only=true !
       videoconvert ! x264enc speed-preset=veryfast tune=zerolatency !
-      flvmux name=mux metadatacreator=${pixelflut_description} encoder='Pixelflut VNC Bridge' ! queue !
+      tee name=videoSplit ! queue !
+      flvmux name=mux metadatacreator=${pixelflut_description} encoder="Pixelflut VNC Bridge" ! queue !
       rtmpsink location='rtmp://${monitoring_host}:1935/live/${streaming_key}'
-
       audiotestsrc wave=silence ! avenc_aac ! mux.
+      videoSplit. ! queue ! valve drop=${disable_video_recording} !
+      matroskamux writing-app="Pixelflut VNC Bridge" !
+      filesink location="/record/${pixelflut_description}-$$(date +%Y-%m-%d_%H-%M).mkv"
+      '
