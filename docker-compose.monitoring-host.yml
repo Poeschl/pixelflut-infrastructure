@@ -98,6 +98,7 @@ services:
 
   owncast:
     image: gabekangas/owncast:0.0.11
+    restart: unless-stopped
     ports:
       - "1935:1935" # open up internal rtmp port
     volumes:
