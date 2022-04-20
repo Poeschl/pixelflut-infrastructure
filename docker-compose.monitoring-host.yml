@@ -30,7 +30,7 @@ services:
 
   prometheus:
     restart: unless-stopped
-    image: "prom/prometheus:v2.32.1"
+    image: "prom/prometheus:v2.34.0"
     volumes:
       - "./prometheus/pixelflut.yml:/etc/prometheus/prometheus.yml"
       - 'prometheus-data:/prometheus'
@@ -41,7 +41,7 @@ services:
 
   grafana:
     restart: unless-stopped
-    image: grafana/grafana:8.3.3
+    image: grafana/grafana:8.4.6
     # If traefik is not used, uncomment this and comment the traefik service.
     # ports:
     #   - 80:3000
@@ -67,7 +67,7 @@ services:
       - 'traefik.http.routers.grafana.entrypoints=websecure'
 
   traefik:
-    image: "traefik:v2.5.6"
+    image: "traefik:v2.6.3"
     restart: unless-stopped
     command:
       - '--api'
