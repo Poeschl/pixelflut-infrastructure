@@ -16,10 +16,10 @@
       loop:
         - grafana
         - prometheus
-        - statistics_crawler
-        - pixelflut_statistics.txt
+        - shoreline_exporter
         - vncmux
         - owncast
+        - glances
         - .env
         - docker-compose.monitoring-host.yml
       copy:

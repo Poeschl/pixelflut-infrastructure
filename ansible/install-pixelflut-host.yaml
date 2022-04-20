@@ -15,6 +15,7 @@
     - name: Copy assets
       loop:
         - wiper
+        - glances
         - .env
         - docker-compose.pixelflut-host.yml
       copy:

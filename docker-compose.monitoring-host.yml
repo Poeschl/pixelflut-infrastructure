@@ -10,34 +10,17 @@ services:
 #    ports:
 #      - 5900:5900
 
-  statistics_crawler:
-    restart: unless-stopped
-    image: python:3.10-alpine
-    network_mode: "host"
-    command: "python /crawl.py ${pixelflut_host} ${pixelflut_port_statistics} /tmp/pixelflut_statistics.txt"
-    volumes:
-      - "./statistics_crawler/crawl.py:/crawl.py"
-      - "./pixelflut_statistics.txt:/tmp/pixelflut_statistics.txt"
-
-  node_exporter:
-    restart: unless-stopped
-    image: "prom/node-exporter:v1.3.1"
-    networks:
-      - monitoring_internal
-    command: "--collector.textfile.directory /var/lib/node_exporter/textfile_collector"
-    volumes:
-      - "./pixelflut_statistics.txt:/var/lib/node_exporter/textfile_collector/pixelflut_statistics.prom"
-
   prometheus:
     restart: unless-stopped
     image: "prom/prometheus:v2.34.0"
     volumes:
       - "./prometheus/pixelflut.yml:/etc/prometheus/prometheus.yml"
       - 'prometheus-data:/prometheus'
-    links:
-      - node_exporter
     networks:
       - monitoring_internal
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "host.pixelflut:${pixelflut_host}"
 
   grafana:
     restart: unless-stopped
@@ -45,8 +28,6 @@ services:
     # If traefik is not used, uncomment this and comment the traefik service.
     # ports:
     #   - 80:3000
-    links:
-      - prometheus
     networks:
       - proxy
       - monitoring_internal
@@ -130,6 +111,28 @@ services:
       - 'traefik.http.routers.owncast.rule=Host(`${viewer_domain}`)'
       - 'traefik.http.routers.owncast.entrypoints=websecure'
       - 'traefik.http.services.owncast.loadbalancer.server.port=8080'
+
+  glances:
+    image: nicolargo/glances:3.2.5-full
+    restart: unless-stopped
+    pid: host
+    network_mode: host
+    environment:
+      GLANCES_OPT: "--quiet --export prometheus"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./glances/monitoring-config.conf:/glances/conf/glances.conf
+
+  shoreline_exporter:
+    image: python:3.10-alpine
+    restart: unless-stopped
+    networks:
+      - monitoring_internal
+    ports:
+      - 7979
+    command: "python /shoreline_exporter.py ${pixelflut_host} ${pixelflut_port_statistics}"
+    volumes:
+      - "./shoreline_exporter/shoreline_exporter.py:/shoreline_exporter.py"
 
 networks:
   proxy:

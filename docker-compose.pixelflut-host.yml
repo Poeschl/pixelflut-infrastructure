@@ -54,3 +54,14 @@ services:
       matroskamux writing-app="Pixelflut VNC Bridge" !
       filesink location="/record/${pixelflut_description}-$$(date +%Y-%m-%d_%H-%M).mkv"
       '
+
+  glances:
+    image: nicolargo/glances:3.2.5-full
+    restart: unless-stopped
+    network_mode: host
+    pid: host
+    environment:
+      GLANCES_OPT: "--quiet --export prometheus"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./glances/pixelflut-config.conf:/glances/conf/glances.conf
