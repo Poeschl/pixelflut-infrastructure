@@ -42,6 +42,7 @@ services:
       GF_SERVER_ROOT_URL: '%(protocol)s://%(domain)s:%(http_port)s/grafana/'
       GF_SERVER_SERVE_FROM_SUB_PATH: 'true'
       GF_SECURITY_ALLOW_EMBEDDING: 'true'
+      # GF_AUTH_ANONYMOUS_ENABLED: 'true' # Comment this out to allow anonymous access to *all* grafana statistics
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.routers.grafana.rule=PathPrefix(`/grafana`)'
