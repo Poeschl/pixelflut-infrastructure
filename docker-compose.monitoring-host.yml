@@ -42,10 +42,11 @@ services:
       GF_SERVER_ROOT_URL: '%(protocol)s://%(domain)s:%(http_port)s/grafana/'
       GF_SERVER_SERVE_FROM_SUB_PATH: 'true'
       GF_SECURITY_ALLOW_EMBEDDING: 'true'
-      # GF_AUTH_ANONYMOUS_ENABLED: 'true' # Comment this out to allow anonymous access to *all* grafana statistics
+      GF_AUTH_ANONYMOUS_ENABLED: "${grafana_anonymous_access}"
     labels:
       - 'traefik.enable=true'
-      - 'traefik.http.routers.grafana.rule=PathPrefix(`/grafana`)'
+      - 'traefik.http.routers.grafana.rule=Host(`${monitoring_domain}`) && PathPrefix(`/grafana`)'
+      - 'traefik.http.routers.grafana.priority=6'
       - 'traefik.http.routers.grafana.entrypoints=websecure'
 
   traefik:
@@ -108,7 +109,8 @@ services:
       - proxy
     labels:
       - 'traefik.enable=true'
-      - 'traefik.http.routers.owncast.rule=Host(`${viewer_domain}`)'
+      - 'traefik.http.routers.owncast.rule=Host(`${monitoring_domain}`)'
+      - 'traefik.http.routers.owncast.priority=5'
       - 'traefik.http.routers.owncast.entrypoints=websecure'
       - 'traefik.http.services.owncast.loadbalancer.server.port=8080'
 
