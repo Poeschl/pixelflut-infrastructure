@@ -1,11 +1,11 @@
 version: '3'
 services:
 
-  vncmux:
-    restart: unless-stopped
-    build: ./vncmux
-    command: -l 5900 -w ${pixelflut_canvas_width} -h ${pixelflut_canvas_height} ${pixelflut_host} ${pixelflut_port_vnc}
-    network_mode: "host"
+  # vncmux:
+  #   restart: unless-stopped
+  #   build: ./vncmux
+  #   command: -l 5900 -w ${pixelflut_canvas_width} -h ${pixelflut_canvas_height} ${pixelflut_host} ${pixelflut_port_vnc}
+  #   network_mode: "host"
 # For Windows enable the ports and comment out the network_mode
 #    ports:
 #      - 5900:5900
