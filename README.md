@@ -68,7 +68,7 @@ More on the [README](ansible/README.md) inside the folder.
 
 ## Overview of services
 
-![Overview of services](docs/images/services.png?raw=true "Overview of services")
+![Overview of services](docs/images/services.drawio.png?raw=true "Overview of services")
 
 ## HTTPS via Traefik
 

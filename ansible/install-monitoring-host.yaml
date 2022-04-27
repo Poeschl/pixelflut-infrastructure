@@ -20,6 +20,7 @@
         - vncmux
         - owncast
         - glances
+        - wiper
         - .env
         - docker-compose.monitoring-host.yml
       copy:

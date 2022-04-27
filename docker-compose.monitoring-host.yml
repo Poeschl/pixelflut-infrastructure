@@ -100,8 +100,6 @@ services:
   owncast:
     image: gabekangas/owncast:0.0.11
     restart: unless-stopped
-    ports:
-      - "1935:1935" # open up internal rtmp port
     volumes:
       - "./owncast/logs:/app/data/logs"
       - "./owncast/owncast.db:/app/data/owncast.db"
@@ -135,6 +133,49 @@ services:
   #   command: "python /shoreline_exporter.py ${pixelflut_host} ${pixelflut_port_statistics}"
   #   volumes:
   #     - "./shoreline_exporter/shoreline_exporter.py:/shoreline_exporter.py"
+
+  wiper:
+    image: ghcr.io/poeschl/pixelpwnr
+    container_name: canvas_wiper
+    volumes:
+      - ./wiper:/wiper
+    network_mode: "host"
+    entrypoint: ["sh", "-c",
+      "timeout 60 sh -c 'until nc -z ${pixelflut_host} 1234; do sleep 1; done';
+      pixelpwnr ${pixelflut_host}:1234 -i /wiper/background.png -c 1 -w ${pixelflut_canvas_width} -h ${pixelflut_canvas_height} 
+      & pid=$$! && sleep 30 && kill -9 $$pid"]
+
+  scheduler:
+    image: mcuadros/ofelia
+    restart: unless-stopped
+    command: daemon --docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      ofelia.job-run.wiper.schedule: "@every 1h"
+      ofelia.job-run.wiper.container: "canvas_wiper"
+
+  vnc2rtmp:
+    image: restreamio/gstreamer:2022-04-11T16-15-11Z-prod-dbg
+    restart: unless-stopped
+    volumes:
+      - "./record:/record"
+    networks:
+      - proxy
+    extra_hosts:
+      - "host.pixelflut:${pixelflut_host}"
+    entrypoint: >
+      /bin/sh -c '
+      gst-launch-1.0
+      rfbsrc host=host.pixelflut port=5901 shared=false view-only=true !
+      videoconvert ! x264enc speed-preset=veryfast tune=zerolatency !
+      tee name=videoSplit ! queue !
+      flvmux name=mux metadatacreator=${pixelflut_description} encoder="Pixelflut VNC Bridge" ! queue !
+      rtmpsink location='rtmp://owncast:1935/live/${streaming_key}'
+      audiotestsrc wave=silence ! avenc_aac ! mux.
+      videoSplit. ! queue ! valve drop=${disable_video_recording} !
+      matroskamux writing-app="Pixelflut VNC Bridge" !
+      filesink location="/record/${pixelflut_description}-$$(date +%Y-%m-%d_%H-%M).mkv"'
 
 networks:
   proxy:
