@@ -14,3 +14,8 @@ scrape_configs:
     static_configs:
       - targets:
         - 'shoreline_exporter:7979'
+
+  - job_name: 'breakwater_statistics'
+    static_configs:
+      - targets:
+        - 'host.pixelflut:9100'

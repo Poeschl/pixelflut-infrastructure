@@ -125,16 +125,16 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./glances/monitoring-config.conf:/glances/conf/glances.conf
 
-  shoreline_exporter:
-    image: python:3.10-alpine
-    restart: unless-stopped
-    networks:
-      - monitoring_internal
-    ports:
-      - 7979
-    command: "python /shoreline_exporter.py ${pixelflut_host} ${pixelflut_port_statistics}"
-    volumes:
-      - "./shoreline_exporter/shoreline_exporter.py:/shoreline_exporter.py"
+  # shoreline_exporter:
+  #   image: python:3.10-alpine
+  #   restart: unless-stopped
+  #   networks:
+  #     - monitoring_internal
+  #   ports:
+  #     - 7979
+  #   command: "python /shoreline_exporter.py ${pixelflut_host} ${pixelflut_port_statistics}"
+  #   volumes:
+  #     - "./shoreline_exporter/shoreline_exporter.py:/shoreline_exporter.py"
 
 networks:
   proxy:
