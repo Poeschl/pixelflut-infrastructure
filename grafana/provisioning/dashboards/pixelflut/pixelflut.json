@@ -620,14 +620,15 @@
   "schemaVersion": 35,
   "style": "dark",
   "tags": [
-    "pixelflut"
+    "pixelflut",
+    "shoreline"
   ],
   "templating": {
     "list": []
   },
   "time": {
-    "from": "2022-04-20T21:37:10.949Z",
-    "to": "2022-04-20T21:38:33.349Z"
+    "from": "now-1h",
+    "to": "now"
   },
   "timepicker": {
     "refresh_intervals": [
