@@ -38,10 +38,10 @@
       become: true
       template:
         src: iptable-rules
-        dest: /etc/network/if-pre-up.d/pixelflut-rules
+        dest: /etc/network/if-up.d/pixelflut-rules
         mode: 'a+x'
 
     - name: Execute iptables rules
       become: true
       shell:
-        cmd: /etc/network/if-pre-up.d/pixelflut-rules
+        cmd: /etc/network/if-up.d/pixelflut-rules
