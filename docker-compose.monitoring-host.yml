@@ -170,7 +170,7 @@ services:
       /bin/sh -c '
       gst-launch-1.0
       rfbsrc host=host.pixelflut port=5901 shared=false view-only=true !
-      videoconvert ! x264enc speed-preset=veryfast tune=zerolatency !
+      videoconvert ! x264enc speed-preset=veryfast tune=zerolatency bitrate=${stream_bitrate} !
       tee name=videoSplit ! queue !
       flvmux name=mux metadatacreator=${pixelflut_description} encoder="Pixelflut VNC Bridge" ! queue !
       rtmpsink location='rtmp://owncast:1935/live/${streaming_key}'
