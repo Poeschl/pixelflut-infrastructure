@@ -6,9 +6,6 @@ services:
   #   build: ./vncmux
   #   command: -l 5900 -w ${pixelflut_canvas_width} -h ${pixelflut_canvas_height} ${pixelflut_host} ${pixelflut_port_vnc}
   #   network_mode: "host"
-# For Windows enable the ports and comment out the network_mode
-#    ports:
-#      - 5900:5900
 
   prometheus:
     restart: unless-stopped
@@ -25,9 +22,6 @@ services:
   grafana:
     restart: unless-stopped
     image: grafana/grafana:8.4.6
-    # If traefik is not used, uncomment this and comment the traefik service.
-    # ports:
-    #   - 80:3000
     networks:
       - proxy
       - monitoring_internal
