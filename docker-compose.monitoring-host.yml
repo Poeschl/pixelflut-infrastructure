@@ -9,7 +9,7 @@ services:
 
   prometheus:
     restart: unless-stopped
-    image: "prom/prometheus:v2.34.0"
+    image: "prom/prometheus:v2.35.0"
     volumes:
       - "./prometheus/pixelflut.yml:/etc/prometheus/prometheus.yml"
       - 'prometheus-data:/prometheus'
@@ -21,7 +21,7 @@ services:
 
   grafana:
     restart: unless-stopped
-    image: grafana/grafana:8.4.6
+    image: grafana/grafana:8.5.2
     networks:
       - proxy
       - monitoring_internal
@@ -44,7 +44,7 @@ services:
       - 'traefik.http.routers.grafana.entrypoints=websecure'
 
   traefik:
-    image: "traefik:v2.6.3"
+    image: "traefik:v2.6.6"
     restart: unless-stopped
     command:
       - '--api'
@@ -142,7 +142,7 @@ services:
       & pid=$$! && sleep 30 && kill -9 $$pid"]
 
   scheduler:
-    image: mcuadros/ofelia
+    image: mcuadros/ofelia:v0.3.6
     restart: unless-stopped
     command: daemon --docker
     volumes:
@@ -152,7 +152,7 @@ services:
       ofelia.job-run.wiper.container: "canvas_wiper"
 
   vnc2rtmp:
-    image: restreamio/gstreamer:2022-04-11T16-15-11Z-prod-dbg
+    image: restreamio/gstreamer:2022-05-06T17-51-03Z-prod-dbg
     restart: unless-stopped
     volumes:
       - "./record:/record"

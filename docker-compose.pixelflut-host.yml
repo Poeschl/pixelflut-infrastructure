@@ -10,7 +10,7 @@ services:
 
   breakwater:
     restart: unless-stopped
-    image: sbernauer/breakwater:0.0.8
+    image: sbernauer/breakwater:0.0.9
     entrypoint: ["breakwater", "-l", "[::]:1234", "--vnc-port", "5901"]
     command: -w ${pixelflut_canvas_width} -h ${pixelflut_canvas_height} -t "${pixelflut_description}"
     network_mode: "host"
