@@ -1,4 +1,0 @@
-pixelflut_bytes 0
-pixelflut_pixels 0
-pixelflut_connections 0
-pixelflut_fps 0

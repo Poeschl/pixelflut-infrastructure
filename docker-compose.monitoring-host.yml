@@ -1,52 +1,27 @@
 version: '3'
 services:
 
-  vncmux:
-    restart: unless-stopped
-    build: ./vncmux
-    command: -l 5900 -w ${pixelflut_canvas_width} -h ${pixelflut_canvas_height} ${pixelflut_host} ${pixelflut_port_vnc}
-    network_mode: "host"
-# For Windows enable the ports and comment out the network_mode
-#    ports:
-#      - 5900:5900
-
-  statistics_crawler:
-    restart: unless-stopped
-    image: python:3.10-alpine
-    network_mode: "host"
-    command: "python /crawl.py ${pixelflut_host} ${pixelflut_port_statistics} /tmp/pixelflut_statistics.txt"
-    volumes:
-      - "./statistics_crawler/crawl.py:/crawl.py"
-      - "./pixelflut_statistics.txt:/tmp/pixelflut_statistics.txt"
-
-  node_exporter:
-    restart: unless-stopped
-    image: "prom/node-exporter:v1.3.1"
-    networks:
-      - monitoring_internal
-    command: "--collector.textfile.directory /var/lib/node_exporter/textfile_collector"
-    volumes:
-      - "./pixelflut_statistics.txt:/var/lib/node_exporter/textfile_collector/pixelflut_statistics.prom"
+  # vncmux:
+  #   restart: unless-stopped
+  #   build: ./vncmux
+  #   command: -l 5900 -w ${pixelflut_canvas_width} -h ${pixelflut_canvas_height} ${pixelflut_host} ${pixelflut_port_vnc}
+  #   network_mode: "host"
 
   prometheus:
     restart: unless-stopped
-    image: "prom/prometheus:v2.32.1"
+    image: "prom/prometheus:v2.35.0"
     volumes:
       - "./prometheus/pixelflut.yml:/etc/prometheus/prometheus.yml"
       - 'prometheus-data:/prometheus'
-    links:
-      - node_exporter
     networks:
       - monitoring_internal
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "host.pixelflut:${pixelflut_host}"
 
   grafana:
     restart: unless-stopped
-    image: grafana/grafana:8.3.3
-    # If traefik is not used, uncomment this and comment the traefik service.
-    # ports:
-    #   - 80:3000
-    links:
-      - prometheus
+    image: grafana/grafana:8.5.2
     networks:
       - proxy
       - monitoring_internal
@@ -60,13 +35,16 @@ services:
       GF_USERS_AUTO_ASSIGN_ORG_ROLE: 'Admin'
       GF_SERVER_ROOT_URL: '%(protocol)s://%(domain)s:%(http_port)s/grafana/'
       GF_SERVER_SERVE_FROM_SUB_PATH: 'true'
+      GF_SECURITY_ALLOW_EMBEDDING: 'true'
+      GF_AUTH_ANONYMOUS_ENABLED: "${grafana_anonymous_access}"
     labels:
       - 'traefik.enable=true'
-      - 'traefik.http.routers.grafana.rule=PathPrefix(`/grafana`)'
+      - 'traefik.http.routers.grafana.rule=Host(`${monitoring_domain}`) && PathPrefix(`/grafana`)'
+      - 'traefik.http.routers.grafana.priority=6'
       - 'traefik.http.routers.grafana.entrypoints=websecure'
 
   traefik:
-    image: "traefik:v2.5.6"
+    image: "traefik:v2.6.6"
     restart: unless-stopped
     command:
       - '--api'
@@ -114,6 +92,87 @@ services:
       - 'traefik.http.middlewares.dashboard-redirect.redirectregex.regex=^(https://.*)/traefik.*'
       - 'traefik.http.middlewares.dashboard-redirect.redirectregex.replacement=$${1}/traefik/dashboard/'
 
+  owncast:
+    image: gabekangas/owncast:0.0.11
+    restart: unless-stopped
+    volumes:
+      - "./owncast/logs:/app/data/logs"
+      - "./owncast/owncast.db:/app/data/owncast.db"
+      - "owncast-data:/app/data"
+    networks:
+      - proxy
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.owncast.rule=Host(`${monitoring_domain}`)'
+      - 'traefik.http.routers.owncast.priority=5'
+      - 'traefik.http.routers.owncast.entrypoints=websecure'
+      - 'traefik.http.services.owncast.loadbalancer.server.port=8080'
+
+  glances:
+    image: nicolargo/glances:3.2.5-full
+    restart: unless-stopped
+    pid: host
+    network_mode: host
+    environment:
+      GLANCES_OPT: "--quiet --export prometheus"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./glances/monitoring-config.conf:/glances/conf/glances.conf
+
+  # shoreline_exporter:
+  #   image: python:3.10-alpine
+  #   restart: unless-stopped
+  #   networks:
+  #     - monitoring_internal
+  #   ports:
+  #     - 7979
+  #   command: "python /shoreline_exporter.py ${pixelflut_host} ${pixelflut_port_statistics}"
+  #   volumes:
+  #     - "./shoreline_exporter/shoreline_exporter.py:/shoreline_exporter.py"
+
+  wiper:
+    image: ghcr.io/poeschl/pixelpwnr
+    container_name: canvas_wiper
+    volumes:
+      - ./wiper:/wiper
+    network_mode: "host"
+    entrypoint: ["sh", "-c",
+      "timeout 60 sh -c 'until nc -z ${pixelflut_host} 1234; do sleep 1; done';
+      pixelpwnr ${pixelflut_host}:1234 -i /wiper/background.png -c 1 -w ${pixelflut_canvas_width} -h ${pixelflut_canvas_height} 
+      & pid=$$! && sleep 30 && kill -9 $$pid"]
+
+  scheduler:
+    image: mcuadros/ofelia:v0.3.6
+    restart: unless-stopped
+    command: daemon --docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      ofelia.job-run.wiper.schedule: "@every 1h"
+      ofelia.job-run.wiper.container: "canvas_wiper"
+
+  vnc2rtmp:
+    image: restreamio/gstreamer:2022-05-06T17-51-03Z-prod-dbg
+    restart: unless-stopped
+    volumes:
+      - "./record:/record"
+    networks:
+      - proxy
+    extra_hosts:
+      - "host.pixelflut:${pixelflut_host}"
+    entrypoint: >
+      /bin/sh -c '
+      gst-launch-1.0
+      rfbsrc host=host.pixelflut port=5901 shared=false view-only=true !
+      videoconvert ! x264enc speed-preset=veryfast tune=zerolatency bitrate=${stream_bitrate} !
+      tee name=videoSplit ! queue !
+      flvmux name=mux metadatacreator=${pixelflut_description} encoder="Pixelflut VNC Bridge" ! queue !
+      rtmpsink location='rtmp://owncast:1935/live/${streaming_key}'
+      audiotestsrc wave=silence ! avenc_aac ! mux.
+      videoSplit. ! queue ! valve drop=${disable_video_recording} !
+      matroskamux writing-app="Pixelflut VNC Bridge" !
+      filesink location="/record/${pixelflut_description}-$$(date +%Y-%m-%d_%H-%M).mkv"'
+
 networks:
   proxy:
   monitoring_internal:
@@ -122,3 +181,4 @@ volumes:
   grafana-data:
   prometheus-data:
   acme-store:
+  owncast-data:
