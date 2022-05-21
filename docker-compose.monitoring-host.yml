@@ -63,9 +63,11 @@ services:
 
       - '--certificatesresolvers.letsencrypt.acme.email=${letsencrypt_email}'
       - '--certificatesresolvers.letsencrypt.acme.storage=/acme/acme.json'
-      - '--certificatesresolvers.letsencrypt.acme.tlschallenge=true'
+      #- '--certificatesresolvers.letsencrypt.acme.tlschallenge=true'
+      - '--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web'
+      #- '--certificatesresolvers.letsencrypt.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory'
 
-      #- '--log.level=DEBUG'
+      - '--log.level=DEBUG'
     networks:
       - proxy
     ports:
@@ -163,7 +165,7 @@ services:
     entrypoint: >
       /bin/sh -c '
       gst-launch-1.0
-      rfbsrc host=host.pixelflut port=5901 shared=false view-only=true !
+      rfbsrc host=host.pixelflut port=${pixelflut_port_vnc} shared=true view-only=true !
       videoconvert ! x264enc speed-preset=veryfast tune=zerolatency bitrate=${stream_bitrate} !
       tee name=videoSplit ! queue !
       flvmux name=mux metadatacreator=${pixelflut_description} encoder="Pixelflut VNC Bridge" ! queue !
@@ -172,6 +174,33 @@ services:
       videoSplit. ! queue ! valve drop=${disable_video_recording} !
       matroskamux writing-app="Pixelflut VNC Bridge" !
       filesink location="/record/${pixelflut_description}-$$(date +%Y-%m-%d_%H-%M).mkv"'
+
+
+  ovenmediaengine:
+    image: airensoft/ovenmediaengine:0.13.2
+    networks:
+      - proxy
+    #volumes:
+      #- "./openmediaengine/Server.xml:/opt/ovenmediaengine/bin/origin_conf/Server.xml"
+    ports:
+      - "3333:3333"
+      - "3478:3478"
+      - "10000-11010:10000-11010/udp"
+
+  vnc2oven:
+    image: restreamio/gstreamer:2022-05-06T17-51-03Z-prod-dbg
+    restart: unless-stopped
+    networks:
+      - proxy
+    extra_hosts:
+      - "host.pixelflut:${pixelflut_host}"
+    entrypoint: >
+      /bin/sh -c '
+      gst-launch-1.0
+      rfbsrc host=host.pixelflut port=${pixelflut_port_vnc} shared=true view-only=true !
+      videoconvert ! x264enc speed-preset=veryfast tune=zerolatency bitrate=${stream_bitrate} !
+      flvmux name=mux metadatacreator=${pixelflut_description} encoder="Pixelflut VNC Bridge" ! queue !
+      rtmpsink location='rtmp://ovenmediaengine:1935/app/pixelflut''
 
 networks:
   proxy:

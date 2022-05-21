@@ -18,4 +18,9 @@ scrape_configs:
   - job_name: 'breakwater_statistics'
     static_configs:
       - targets:
+        - 'host.pixelflut:9101'
+
+  - job_name: 'pixelflut_raw'
+    static_configs:
+      - targets:
         - 'host.pixelflut:9100'
