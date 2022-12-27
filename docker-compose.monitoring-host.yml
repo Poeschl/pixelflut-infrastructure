@@ -93,7 +93,7 @@ services:
       - 'traefik.http.middlewares.dashboard-redirect.redirectregex.replacement=$${1}/traefik/dashboard/'
 
   owncast:
-    image: gabekangas/owncast:0.0.11
+    image: gabekangas/owncast:0.0.13
     restart: unless-stopped
     volumes:
       - "./owncast/logs:/app/data/logs"
