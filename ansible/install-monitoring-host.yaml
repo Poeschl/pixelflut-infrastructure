@@ -18,7 +18,7 @@
         - prometheus
         - shoreline_exporter
         - vncmux
-        - owncast
+        #- owncast
         - glances
         - wiper
         - .env
