@@ -16,7 +16,7 @@ services:
     network_mode: "host"
 
   glances:
-    image: nicolargo/glances:3.2.5-full
+    image: nicolargo/glances:3.3.0-full
     restart: unless-stopped
     network_mode: host
     pid: host

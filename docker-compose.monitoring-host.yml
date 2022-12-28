@@ -109,7 +109,7 @@ services:
       - 'traefik.http.services.owncast.loadbalancer.server.port=8080'
 
   glances:
-    image: nicolargo/glances:3.2.5-full
+    image: nicolargo/glances:3.3.0-full
     restart: unless-stopped
     pid: host
     network_mode: host
@@ -152,7 +152,7 @@ services:
       ofelia.job-run.wiper.container: "canvas_wiper"
 
   vnc2rtmp:
-    image: restreamio/gstreamer:2022-05-06T17-51-03Z-prod-dbg
+    image: restreamio/gstreamer:2022-12-12T14-46-07Z-prod-dbg
     restart: unless-stopped
     volumes:
       - "./record:/record"
