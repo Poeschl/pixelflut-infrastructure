@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# This little tool combine recorded pixelflut .mks into a big standardized 1080p h265 video mp4 as a timelapse.
+# This little tool combine recorded pixelflut .mkv's into a big standardized 1080p h265 video mp4 as a timelapse.
 # This is normally used to spread the recording on your favorite video sharing platform.
 #
 set -e
@@ -11,7 +11,7 @@ RESULT_FILE='combined.mp4'
 if [ -z "$INPUT_FILES" ]; then
   echo 'No input files are detected.'
   echo 'Arguments like this are expected: ./combineVideos.sh PixelTest-2022-04-30_10-26.mkv PixelTest-2022-04-30_10-30.mkv'
-  echo 'For a full folder of files use ./combineVideos.sh $(ls | sort)'
+  echo 'For a full folder of files use ./combineVideos.sh $(ls *.mkv | sort)'
   exit 1
 fi
 
