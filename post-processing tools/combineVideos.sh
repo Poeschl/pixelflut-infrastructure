@@ -15,6 +15,14 @@ if [ -z "$INPUT_FILES" ]; then
   exit 1
 fi
 
+if grep -qi microsoft /proc/version; then
+  echo "Detected WSL environment. Expecting ffmpeg.exe on PATH."
+  FFMPEG="ffmpeg.exe"
+  sleep 2
+else
+  FFMPEG="ffmpeg"
+fi
+
 echo "Start creating video of files $@"
 
 INPUTS=""
@@ -29,7 +37,7 @@ done
 
 # Timelapse it 80x
 set -x
-ffmpeg \
+$FFMPEG \
   $INPUTS \
   -filter_complex "$INPUT_VIDEO_SCALES $INPUT_VIDEO_STREAMS concat=n=${INPUT_COUNT}:v=1:a=0 [combinedv]; \
   [combinedv] setpts=0.0125*PTS [timelapse]" \
