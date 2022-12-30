@@ -7,6 +7,8 @@ set -e
 
 INPUT_FILES=( "$@" )
 RESULT_FILE='combined.mp4'
+OUTPUT_RESOLUTION='w=1920:h=1080'
+TIME_MULTIPLIER=0.0125 # 80x timelapse
 
 if [ -z "$INPUT_FILES" ]; then
   echo 'No input files are detected.'
@@ -17,12 +19,22 @@ fi
 
 if grep -qi microsoft /proc/version; then
   echo "Detected WSL environment. Expecting ffmpeg.exe on PATH."
-  FFMPEG="ffmpeg.exe"
-  sleep 2
+  FFMPEG='ffmpeg.exe'
 else
-  FFMPEG="ffmpeg"
+  FFMPEG='ffmpeg'
 fi
 
+echo "Check encoders..."
+AVAILABLE_ENCODERS=$(${FFMPEG} -hide_banner -encoders)
+if echo "$AVAILABLE_ENCODERS" | grep -E "cuvid|nvenc|cuda"; then
+  echo "Detected hardware supported encoders. Will use hevc_nvenc encoder."
+  ENCODER='hevc_nvenc'
+else
+  echo "No hardware supported encoder available in ffmpeg. Will use the libx265 encoder."
+  ENCODER='libx265'
+fi
+
+sleep 2
 echo "Start creating video of files $@"
 
 INPUTS=""
@@ -30,18 +42,17 @@ INPUT_VIDEO_STREAMS=""
 INPUT_COUNT=0
 for file in "${INPUT_FILES[@]}"; do
    INPUTS="$INPUTS -i $file"
-   INPUT_VIDEO_SCALES="$INPUT_VIDEO_SCALES [${INPUT_COUNT}:v:0] scale=w=1920:h=1080 [scaled${INPUT_COUNT}];"
+   INPUT_VIDEO_SCALES="$INPUT_VIDEO_SCALES [${INPUT_COUNT}:v:0] scale=${OUTPUT_RESOLUTION} [scaled${INPUT_COUNT}];"
    INPUT_VIDEO_STREAMS="$INPUT_VIDEO_STREAMS [scaled${INPUT_COUNT}]"
    INPUT_COUNT=$((INPUT_COUNT+1))
 done
 
-# Timelapse it 80x
 set -x
 $FFMPEG \
   $INPUTS \
   -filter_complex "$INPUT_VIDEO_SCALES $INPUT_VIDEO_STREAMS concat=n=${INPUT_COUNT}:v=1:a=0 [combinedv]; \
-  [combinedv] setpts=0.0125*PTS [timelapse]" \
-  -map '[timelapse]' -vcodec hevc_nvenc -preset fast -b:v 6M -an \
+  [combinedv] setpts=${TIME_MULTIPLIER}*PTS [timelapse]" \
+  -map '[timelapse]' -c:v "${ENCODER}" -preset fast -pixel_format yuv444p -b:v 6M -an \
   -r 30 ${RESULT_FILE}
 set +x
 
