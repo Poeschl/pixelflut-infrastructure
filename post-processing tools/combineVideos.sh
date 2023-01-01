@@ -51,7 +51,7 @@ set -x
 $FFMPEG \
   $INPUTS \
   -filter_complex "$INPUT_VIDEO_SCALES $INPUT_VIDEO_STREAMS concat=n=${INPUT_COUNT}:v=1:a=0 [combinedv]; \
-  [combinedv] setpts=${TIME_MULTIPLIER}*PTS [timelapse]" \
+  [combinedv] setpts=(${TIME_MULTIPLIER})*PTS [timelapse]" \
   -map '[timelapse]' -c:v "${ENCODER}" -preset fast -pixel_format yuv444p -b:v 6M -an \
   -r 30 ${RESULT_FILE}
 set +x
