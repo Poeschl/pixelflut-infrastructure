@@ -8,7 +8,7 @@ set -e
 INPUT_FILES=( "$@" )
 RESULT_FILE='combined.mp4'
 OUTPUT_RESOLUTION='w=1920:h=1080'
-TIME_MULTIPLIER=0.0125 # 80x timelapse
+TIME_MULTIPLIER=1/80 # 80x timelapse
 
 if [ -z "$INPUT_FILES" ]; then
   echo 'No input files are detected.'
