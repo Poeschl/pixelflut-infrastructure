@@ -1,13 +1,6 @@
 version: '3'
 services:
 
-  # shoreline:
-  #   restart: unless-stopped
-  #   image: ghcr.io/poeschl/shoreline
-  #   entrypoint: ["shoreline", "-b", "0.0.0.0", "-p", "1234", "-f", "vnc,port=5901", "-f", "statistics,port=1235", "-t", "arial.ttf"]
-  #   command: -w ${pixelflut_canvas_width} -h ${pixelflut_canvas_height} -d "${pixelflut_description}"
-  #   network_mode: "host"
-
   breakwater:
     restart: unless-stopped
     image: sbernauer/breakwater:0.0.9

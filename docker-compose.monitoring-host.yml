@@ -1,12 +1,6 @@
 version: '3'
 services:
 
-  # vncmux:
-  #   restart: unless-stopped
-  #   build: ./vncmux
-  #   command: -l 5900 -w ${pixelflut_canvas_width} -h ${pixelflut_canvas_height} ${pixelflut_host} ${pixelflut_port_vnc}
-  #   network_mode: "host"
-
   prometheus:
     restart: unless-stopped
     image: "prom/prometheus:v2.41.0"
@@ -118,17 +112,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./glances/monitoring-config.conf:/glances/conf/glances.conf
-
-  # shoreline_exporter:
-  #   image: python:3.10-alpine
-  #   restart: unless-stopped
-  #   networks:
-  #     - monitoring_internal
-  #   ports:
-  #     - 7979
-  #   command: "python /shoreline_exporter.py ${pixelflut_host} ${pixelflut_port_statistics}"
-  #   volumes:
-  #     - "./shoreline_exporter/shoreline_exporter.py:/shoreline_exporter.py"
 
   wiper:
     image: ghcr.io/poeschl/pixelpwnr
