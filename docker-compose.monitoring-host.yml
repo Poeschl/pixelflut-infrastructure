@@ -149,12 +149,12 @@ services:
       rfbsrc host=host.pixelflut port=5901 shared=false view-only=true !
       videoconvert ! x264enc speed-preset=veryfast tune=zerolatency bitrate=${stream_bitrate} !
       tee name=videoSplit ! queue !
-      flvmux name=mux metadatacreator=${pixelflut_description} encoder="Pixelflut VNC Bridge" ! queue !
+      flvmux name=mux metadatacreator="${record_file_identifier}" encoder="Pixelflut VNC Bridge" ! queue !
       rtmpsink location='rtmp://owncast:1935/live/${streaming_key}'
       audiotestsrc wave=silence ! avenc_aac ! mux.
       videoSplit. ! queue ! valve drop=${disable_video_recording} !
       matroskamux writing-app="Pixelflut VNC Bridge" !
-      filesink location="/record/${pixelflut_description}-$$(date +%Y-%m-%d_%H-%M).mkv"'
+      filesink location="/record/${record_file_identifier}-$$(date +%Y-%m-%d_%H-%M).mkv"'
 
 networks:
   proxy:
