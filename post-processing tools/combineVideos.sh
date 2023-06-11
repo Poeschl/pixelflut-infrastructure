@@ -6,9 +6,9 @@
 set -e
 
 INPUT_FILES=( "$@" )
-RESULT_FILE='combined.mp4'
 OUTPUT_RESOLUTION='w=1920:h=1080'
-TIME_MULTIPLIER=1/100 # 100x timelapse
+TIMELAPSE=100 # 100x timelapse
+RESULT_FILE="combined_${TIMELAPSE}.mp4"
 
 if [ -z "$INPUT_FILES" ]; then
   echo 'No input files are detected.'
@@ -63,7 +63,7 @@ set -x
 $FFMPEG \
   $INPUTS \
   -filter_complex "$INPUT_VIDEO_SCALES $INPUT_VIDEO_STREAMS concat=n=${INPUT_COUNT}:v=1:a=0 [combinedv]; \
-  [combinedv] setpts=(${TIME_MULTIPLIER})*PTS [timelapse]" \
+  [combinedv] setpts=(1/${TIMELAPSE})*PTS [timelapse]" \
   -map '[timelapse]' -c:v "${ENCODER}" -preset fast -pixel_format yuv444p -b:v 6M -an \
   -r 30 ${RESULT_FILE}
 set +x
