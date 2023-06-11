@@ -8,7 +8,7 @@ set -e
 INPUT_FILES=( "$@" )
 RESULT_FILE='combined.mp4'
 OUTPUT_RESOLUTION='w=1920:h=1080'
-TIME_MULTIPLIER=1/80 # 80x timelapse
+TIME_MULTIPLIER=1/100 # 100x timelapse
 
 if [ -z "$INPUT_FILES" ]; then
   echo 'No input files are detected.'
@@ -34,8 +34,20 @@ else
   ENCODER='libx265'
 fi
 
+echo "Check files"
 sleep 2
-echo "Start creating video of files $@"
+
+for file in "${INPUT_FILES[@]}"; do
+  if [ -f "$file" ]; then
+    echo "$file: exists"
+  else
+    echo "Could not find '$file'"
+    exit 1
+  fi
+done
+
+echo "Start creating video"
+sleep 2
 
 INPUTS=""
 INPUT_VIDEO_STREAMS=""
