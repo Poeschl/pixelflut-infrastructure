@@ -1,6 +1,0 @@
-- name: Update and upgrade apt packages
-  become: true
-  apt:
-    upgrade: true
-    update_cache: true
-  when: "apt_upgrade is defined and apt_upgrade == true"

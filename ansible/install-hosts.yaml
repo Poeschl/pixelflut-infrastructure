@@ -1,0 +1,103 @@
+- name: Basic setup
+  hosts: all
+  tasks:
+
+    - name: Update and upgrade apt packages
+      become: true
+      when: "apt_upgrade is defined and apt_upgrade == true"
+      ansible.builtin.apt:
+        update_cache: true
+        upgrade: true
+
+    - name: Install docker environment
+      become: true
+      when: "install_docker is undefined or install_docker == true"
+      ansible.builtin.import_role:
+        name: geerlingguy.docker
+      vars:
+        docker_install_compose: true
+        docker_install_compose_plugin: true
+        docker_service_enabled: true
+        docker_service_manage: true
+        docker_restart_handler_state: reloaded
+        docker_users: "{{ ansible_user_id }}"
+
+    - name: Install docker python environment
+      become: true
+      ansible.builtin.import_role:
+        name: geerlingguy.pip
+      vars:
+        pip_install_packages:
+          - docker
+          - docker-compose
+          - pyaml
+
+    - name: Reset ssh connection to get new group membership
+      ansible.builtin.meta: reset_connection
+
+    - name: Creates workspace folder
+      ansible.builtin.file:
+        path: "{{ working_dir}}"
+        state: directory
+        mode: u=rwx,g=rw
+
+
+- name: Monitoring setup
+  hosts: monitoring
+  tasks:
+
+    - name: Copy assets
+      loop:
+        - grafana
+        - prometheus
+        - glances
+        - wiper
+        - .env
+        - monitoring-host.docker-compose.yaml
+      ansible.builtin.copy:
+        src: "../{{ item }}"
+        dest: "{{ working_dir }}"
+
+    - name: Start Monitoring docker container
+      community.docker.docker_compose:
+        project_src: "{{ working_dir }}"
+        files:
+          - monitoring-host.docker-compose.yaml
+
+- name: Pixelflut setup
+  hosts: pixelflut
+  tasks:
+
+    - name: Copy assets
+      loop:
+        - glances
+        - .env
+        - pixelflut-host.docker-compose.yaml
+      ansible.builtin.copy:
+        src: "../{{ item }}"
+        dest: "{{ working_dir}}"
+
+    - name: Start Pixelflut docker container
+      community.docker.docker_compose:
+        project_src: "{{ working_dir }}"
+        files:
+          - pixelflut-host.docker-compose.yaml
+
+    - name: Install iptables
+      become: true
+      ansible.builtin.apt:
+        pkg:
+          - iptables
+        update_cache: yes
+
+    - name: Set up iptables rules
+      become: true
+      ansible.builtin.template:
+        src: iptable-rules
+        dest: /etc/network/if-up.d/pixelflut-rules
+        mode: 'a+x'
+
+    - name: Execute iptables rules
+      become: true
+      ansible.builtin.shell:
+        cmd: /etc/network/if-up.d/pixelflut-rules

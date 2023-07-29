@@ -1,0 +1,17 @@
+all:
+  children:
+    pixelflut:
+      hosts:
+        91.107.203.97:
+      vars:
+        monitoring_ip: 128.140.48.46
+
+    monitoring:
+      hosts:
+        128.140.48.46:
+
+  vars:
+    apt_upgrade: true
+    install_docker: true
+    working_dir: ~/pixelflut-infrastructure
+    

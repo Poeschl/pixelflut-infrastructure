@@ -1,5 +1,0 @@
-- name: Creates pixelflut workspace
-  file:
-    path: "{{ working_dir}}"
-    state: directory
-    mode: u=rwx,g=rw
