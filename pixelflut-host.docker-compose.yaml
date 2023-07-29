@@ -3,13 +3,13 @@ services:
 
   breakwater:
     restart: unless-stopped
-    image: sbernauer/breakwater:0.0.9
+    image: sbernauer/breakwater:0.12.0
     entrypoint: ["breakwater", "-l", "[::]:1234", "--vnc-port", "5901"]
-    command: -w ${pixelflut_canvas_width} -h ${pixelflut_canvas_height} -t "${pixelflut_description}"
+    command: --width ${pixelflut_canvas_width} --height ${pixelflut_canvas_height} --text "${pixelflut_description}"
     network_mode: "host"
 
   glances:
-    image: nicolargo/glances:3.3.0-full
+    image: nicolargo/glances:3.4.0.3-full
     restart: unless-stopped
     network_mode: host
     pid: host

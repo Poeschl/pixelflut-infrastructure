@@ -96,6 +96,8 @@ For a secure TLS connection Traefik is used for the monitoring server and provid
 The certificate for the connection is recieved from Let's encrypt and is stored in a internal volume, so it stays persistant between restarts.
 The traefik Dashboard is available under `<monitoring_url>/traefik`, in case the domain correctly entered in the `.env` file.
 
+For your own sanity, the project uses the staging env as default. To get production-ready certificates, change the marked line in the docker-compose.
+
 ### Routes
 
 Traefik has the following routes setup by default:

@@ -3,7 +3,7 @@ services:
 
   prometheus:
     restart: unless-stopped
-    image: "prom/prometheus:v2.41.0"
+    image: "prom/prometheus:v2.46.0"
     volumes:
       - "./prometheus/pixelflut.yml:/etc/prometheus/prometheus.yml"
       - 'prometheus-data:/prometheus'
@@ -15,7 +15,7 @@ services:
 
   grafana:
     restart: unless-stopped
-    image: grafana/grafana:9.3.2
+    image: grafana/grafana:10.0.3
     networks:
       - proxy
       - monitoring_internal
@@ -38,7 +38,7 @@ services:
       - 'traefik.http.routers.grafana.entrypoints=websecure'
 
   traefik:
-    image: "traefik:v2.9"
+    image: "traefik:v2.10"
     restart: unless-stopped
     command:
       - '--api'
@@ -58,6 +58,8 @@ services:
       - '--certificatesresolvers.letsencrypt.acme.email=${letsencrypt_email}'
       - '--certificatesresolvers.letsencrypt.acme.storage=/acme/acme.json'
       - '--certificatesresolvers.letsencrypt.acme.tlschallenge=true'
+      # Comment out next line to get letsencrypt production certificates
+      - '--certificatesresolvers.letsencrypt.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory'
 
       #- '--log.level=DEBUG'
     networks:
@@ -87,11 +89,10 @@ services:
       - 'traefik.http.middlewares.dashboard-redirect.redirectregex.replacement=$${1}/traefik/dashboard/'
 
   owncast:
-    image: gabekangas/owncast:0.0.13
+    image: gabekangas/owncast:0.1.1
     restart: unless-stopped
     volumes:
       - "./owncast/logs:/app/data/logs"
-      - "./owncast/owncast.db:/app/data/owncast.db"
       - "owncast-data:/app/data"
     networks:
       - proxy
@@ -103,7 +104,7 @@ services:
       - 'traefik.http.services.owncast.loadbalancer.server.port=8080'
 
   glances:
-    image: nicolargo/glances:3.3.0-full
+    image: nicolargo/glances:3.4.0.3-full
     restart: unless-stopped
     pid: host
     network_mode: host
@@ -135,18 +136,16 @@ services:
       ofelia.job-run.wiper.container: "canvas_wiper"
 
   vnc2rtmp:
-    image: restreamio/gstreamer:2022-12-12T14-46-07Z-prod-dbg
+    image: restreamio/gstreamer:2023-05-15T14-10-06Z-prod-dbg
     restart: unless-stopped
     volumes:
       - "./record:/record"
     networks:
       - proxy
-    extra_hosts:
-      - "host.pixelflut:${pixelflut_host}"
     entrypoint: >
       /bin/sh -c '
       gst-launch-1.0
-      rfbsrc host=host.pixelflut port=5901 shared=false view-only=true !
+      rfbsrc host=${pixelflut_host} port=5901 shared=false view-only=true !
       videoconvert ! x264enc speed-preset=veryfast tune=zerolatency bitrate=${stream_bitrate} !
       tee name=videoSplit ! queue !
       flvmux name=mux metadatacreator="${record_file_identifier}" encoder="Pixelflut VNC Bridge" ! queue !
