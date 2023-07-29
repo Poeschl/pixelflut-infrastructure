@@ -9,12 +9,6 @@ scrape_configs:
         - 'host.docker.internal:9091'
         - 'host.pixelflut:9091'
 
-  - job_name: 'pixelflut_statistics'
-    metrics_path: /metrics
-    static_configs:
-      - targets:
-        - 'shoreline_exporter:7979'
-
   - job_name: 'breakwater_statistics'
     static_configs:
       - targets:
